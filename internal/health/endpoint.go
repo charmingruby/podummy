@@ -7,17 +7,17 @@ import (
 )
 
 type Endpoint struct {
-	Router *gin.Engine
+	router *gin.Engine
 }
 
 func NewEndpoint(router *gin.Engine) *Endpoint {
 	return &Endpoint{
-		Router: router,
+		router: router,
 	}
 }
 
 func (e *Endpoint) Register() {
-	e.Router.GET("/health-check", e.makeHealthCheckHandler())
+	e.router.GET("/health-check", e.makeHealthCheckHandler())
 }
 
 func (e *Endpoint) makeHealthCheckHandler() gin.HandlerFunc {
