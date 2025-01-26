@@ -1,34 +1,39 @@
 package poke
 
-import (
-	"math/rand"
-	"strconv"
-	"time"
-)
+import "github.com/charmingruby/podummy/pkg/helper"
 
 const (
 	TEAM_SIZE = 6
-
-	MIN_ID = 1
-	MAX_ID = 151
 )
 
-func NewService(pokeAPIClient PokeAPIClient) *Service {
+func NewService(version string, pokeAPIClient PokeAPIClient) *Service {
 	return &Service{
+		Version:       version,
 		PokeAPIClient: pokeAPIClient,
 	}
 }
 
 type Service struct {
+	Version       string
 	PokeAPIClient PokeAPIClient
 }
 
-func (s *Service) ShuffleTeam() ([]Pokemon, error) {
+type TeamShuffledResponse struct {
+	CurrentVersion string    `json:"current_version"`
+	Team           []Pokemon `json:"team_shuffled"`
+}
+
+func (s *Service) ShuffleTeam() (TeamShuffledResponse, error) {
+	opts, err := retrieveOptsFromVersion(s.Version)
+	if err != nil {
+		return TeamShuffledResponse{}, err
+	}
+
 	team := make([]Pokemon, 0, TEAM_SIZE)
 	usedIDs := make(map[string]bool)
 
 	for len(team) < TEAM_SIZE {
-		id := s.generateRandomValidID()
+		id := helper.GenerateRandomValueFromRange(opts.MaxID, opts.MinID)
 
 		if usedIDs[id] {
 			continue
@@ -36,21 +41,15 @@ func (s *Service) ShuffleTeam() ([]Pokemon, error) {
 
 		pokemon, err := s.PokeAPIClient.GetPokemonByID(id)
 		if err != nil {
-			return nil, err
+			return TeamShuffledResponse{}, err
 		}
 
 		team = append(team, pokemon)
 		usedIDs[id] = true
 	}
 
-	return team, nil
-}
-
-func (s *Service) generateRandomValidID() string {
-	src := rand.NewSource(time.Now().UnixNano())
-	rng := rand.New(src)
-
-	id := rng.Intn(MAX_ID-MIN_ID) + MIN_ID
-
-	return strconv.Itoa(id)
+	return TeamShuffledResponse{
+		CurrentVersion: s.Version,
+		Team:           team,
+	}, nil
 }

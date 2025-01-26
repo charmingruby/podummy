@@ -8,6 +8,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/charmingruby/podummy/config"
 	"github.com/charmingruby/podummy/internal/health"
 	"github.com/charmingruby/podummy/internal/poke"
 	"github.com/charmingruby/podummy/internal/shared/rest"
@@ -18,7 +19,9 @@ import (
 func main() {
 	server := rest.NewServer("8080")
 
-	initModules(server.Router)
+	cfg, _ := config.New()
+
+	initModules(server.Router, cfg)
 
 	go func() {
 		if err := server.Start(); err != nil {
@@ -43,10 +46,10 @@ func main() {
 	log.Println("Server exiting")
 }
 
-func initModules(router *gin.Engine) {
+func initModules(router *gin.Engine, cfg *config.Wrapper) {
 	health.NewEndpoint(router).Register()
 
 	pokeAPI := pokeapi.NewPokeAPI()
-	pokeSvc := poke.NewService(pokeAPI)
+	pokeSvc := poke.NewService(cfg.Versioning.Version, pokeAPI)
 	poke.NewEndpoint(router, pokeSvc).Register()
 }
