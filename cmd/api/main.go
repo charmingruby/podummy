@@ -32,7 +32,7 @@ func main() {
 		slog.Error(fmt.Sprintf("CONFIGURATION: Failed to load configuration: %s", err.Error()))
 	}
 
-	server := rest.NewServer("8080")
+	server := rest.NewServer(cfg.Server.Port)
 
 	initModules(server.Router, cfg)
 
