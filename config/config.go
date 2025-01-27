@@ -1,14 +1,26 @@
 package config
 
-import "github.com/charmingruby/podummy/internal/poke"
+import (
+	env "github.com/caarlos0/env/v6"
+)
+
+type environment struct {
+	ServerPort string `env:"SERVER_PORT,required"`
+	Version    string `env:"VERSION,required"`
+}
 
 func New() (*Wrapper, error) {
+	environment := environment{}
+	if err := env.Parse(&environment); err != nil {
+		return &Wrapper{}, err
+	}
+
 	return &Wrapper{
 		Versioning: versioning{
-			Version: poke.GREEN_VERSION,
+			Version: environment.Version,
 		},
 		Server: server{
-			Port: "8080",
+			Port: environment.ServerPort,
 		},
 	}, nil
 }

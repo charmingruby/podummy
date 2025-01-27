@@ -2,7 +2,9 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
+	"log/slog"
 	"os"
 	"os/signal"
 	"syscall"
@@ -14,12 +16,23 @@ import (
 	"github.com/charmingruby/podummy/internal/shared/rest"
 	"github.com/charmingruby/podummy/pkg/external/client/pokeapi"
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 )
 
 func main() {
-	server := rest.NewServer("8080")
+	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
+	slog.SetDefault(logger)
 
-	cfg, _ := config.New()
+	if err := godotenv.Load(); err != nil {
+		slog.Warn("CONFIGURATION: .env file not found")
+	}
+
+	cfg, err := config.New()
+	if err != nil {
+		slog.Error(fmt.Sprintf("CONFIGURATION: Failed to load configuration: %s", err.Error()))
+	}
+
+	server := rest.NewServer("8080")
 
 	initModules(server.Router, cfg)
 
@@ -33,7 +46,7 @@ func main() {
 
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
-	log.Println("Shutdown Server ...")
+	slog.Info("Shutdown Server ...")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
@@ -42,8 +55,8 @@ func main() {
 	}
 
 	<-ctx.Done()
-	log.Println("timeout of 5 seconds.")
-	log.Println("Server exiting")
+	slog.Info("timeout of 5 seconds.")
+	slog.Info("Server exiting")
 }
 
 func initModules(router *gin.Engine, cfg *config.Wrapper) {

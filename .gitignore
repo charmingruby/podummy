@@ -1,1 +1,5 @@
+# temporary files
 tmp
+
+# environment
+.env
