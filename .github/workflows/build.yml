@@ -1,7 +1,9 @@
 name: Container Build
 
 on: 
-    workflow_call: 
+    push: 
+        branches:
+            - main
 
 jobs:
     build:
