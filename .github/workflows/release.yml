@@ -1,0 +1,24 @@
+# name: Release
+
+# on: 
+#     push: 
+#         branches:
+#             - main 
+
+# jobs:
+#     release:
+#         runs-on: ubuntu-latest
+#         strategy:
+#             matrix:
+#                 version: [blue, green]
+#         steps:
+#         - uses: actions/checkout@v4
+
+#         - name: Build Docker Image
+#           run: make docker-build VERSION=${{ matrix.version }}
+
+#         - name: Push Docker Image
+#           run: |
+#             echo "${{ secrets.DOCKERHUB_USERNAME }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+#             docker tag podummy:${{ matrix.version }} ${{ secrets.DOCKERHUB_USERNAME }}/podummy:${{ matrix.version }}
+#             docker push ${{ secrets.DOCKERHUB_USERNAME }}/podummy:${{ matrix.version }}

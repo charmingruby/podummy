@@ -1,7 +1,6 @@
 # STEP 1: Build
 FROM golang:1.23.3-alpine AS builder
 ARG VERSION
-ARG SERVER_PORT
 RUN apk update && apk add --no-cache git upx
 WORKDIR /build
 COPY . .
@@ -14,10 +13,8 @@ RUN upx --best --lzma ./bin/api-${VERSION}
 # STEP 3: Run
 FROM alpine:latest
 ARG VERSION
-ARG SERVER_PORT
 WORKDIR /app
 RUN apk update && apk add ca-certificates && rm -rf /var/cache/apk*
 COPY --from=builder /build/bin/api-${VERSION} ./api
 ENV VERSION=${VERSION}
-ENV SERVER_PORT=${SERVER_PORT}
 CMD [ "/app/api" ]

@@ -5,8 +5,7 @@ import (
 )
 
 type environment struct {
-	ServerPort string `env:"SERVER_PORT,required"`
-	Version    string `env:"VERSION,required"`
+	Version string `env:"VERSION,required"`
 }
 
 func New() (*Wrapper, error) {
@@ -16,24 +15,14 @@ func New() (*Wrapper, error) {
 	}
 
 	return &Wrapper{
-		Versioning: versioning{
-			Version: environment.Version,
-		},
-		Server: server{
-			Port: environment.ServerPort,
-		},
+		Versioning: versioning(environment),
 	}, nil
 }
 
 type Wrapper struct {
 	Versioning versioning
-	Server     server
 }
 
 type versioning struct {
 	Version string
-}
-
-type server struct {
-	Port string
 }
