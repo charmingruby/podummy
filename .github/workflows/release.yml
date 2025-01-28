@@ -10,7 +10,7 @@ jobs:
         runs-on: ubuntu-latest
         strategy:
             matrix:
-                version: [blue, green]
+                version: [green, blue]
 
         steps:
         - name: Checkout Code
@@ -23,8 +23,8 @@ jobs:
             password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
         - name: Build Docker Image
-          run: 	docker build --build-arg VERSION=${{matrix.version}} -t ${{github.event.repository.name}}:${{matrix.version}} .
-        
+          run: 	docker build --build-arg VERSION=${{matrix.version}} -t ${{secrets.DOCKERHUB_USERNAME}}/${{github.event.repository.name}}:${{matrix.version}} .
+
         - name: Push Docker Image
           run: |
             docker push ${{ secrets.DOCKERHUB_USERNAME }}/${{ github.event.repository.name }}:${{ matrix.version }}
