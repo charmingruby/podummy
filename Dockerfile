@@ -17,4 +17,5 @@ WORKDIR /app
 RUN apk update && apk add ca-certificates && rm -rf /var/cache/apk*
 COPY --from=builder /build/bin/api-${VERSION} ./api
 ENV VERSION=${VERSION}
+EXPOSE 8080
 CMD [ "/app/api" ]
