@@ -1,24 +1,33 @@
-# name: Release
+name: Release
 
-# on: 
-#     push: 
-#         branches:
-#             - main 
+on: 
+    push: 
+        branches:
+            - main 
 
-# jobs:
-#     release:
-#         runs-on: ubuntu-latest
-#         strategy:
-#             matrix:
-#                 version: [blue, green]
-#         steps:
-#         - uses: actions/checkout@v4
+jobs:
+    release:
+        runs-on: ubuntu-latest
+        strategy:
+            matrix:
+                version: [blue, green]
 
-#         - name: Build Docker Image
-#           run: make docker-build VERSION=${{ matrix.version }}
+        steps:
+        - name: Login to Docker Hub
+          uses: docker/login-action@v2
+          with:
+            username: ${{ secrets.DOCKERHUB_USERNAME }}
+            password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
-#         - name: Push Docker Image
-#           run: |
-#             echo "${{ secrets.DOCKERHUB_USERNAME }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
-#             docker tag podummy:${{ matrix.version }} ${{ secrets.DOCKERHUB_USERNAME }}/podummy:${{ matrix.version }}
-#             docker push ${{ secrets.DOCKERHUB_USERNAME }}/podummy:${{ matrix.version }}
+        - name: Build Docker Image
+          run: make docker-build VERSION=${{ matrix.version }}
+        
+        - name: Build and Push Docker Image
+          id: docker_build
+          uses: docker/build-push-action@v3
+          with:
+            push: true
+            tags: |
+              ${{ secrets.DOCKERHUB_USERNAME }}/${{ github.event.repository.name }}:latest
+              ${{ secrets.DOCKERHUB_USERNAME }}/${{ github.event.repository.name }}:${{ matrix.version }}
+        
