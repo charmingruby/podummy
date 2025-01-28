@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: podummy
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: podummy
+      version: green
+  template:
+    metadata:
+      labels:
+        app: podummy
+        version: green
+    spec:
+      containers:
+        - name: podummy
+          image: charmingruby/podummy:green
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: podummy
+spec:
+  selector:
+    app: podummy
+    version: green
+  type: NodePort
+  ports:
+    - name: http
+      port: 80
+      targetPort: 8080
+      protocol: TCP
+      nodePort: 30000 # to be used locally using port binding
