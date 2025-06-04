@@ -17,10 +17,12 @@ func NewEndpoint(router *gin.Engine) *Endpoint {
 }
 
 func (e *Endpoint) Register() {
-	e.router.GET("/health-check", e.makeHealthCheckHandler())
+	api := e.router.Group("/api")
+	api.GET("/health/live", e.makeBasicHealthCheckEndpoint())
+	api.GET("/health/ready", e.makeBasicHealthCheckEndpoint())
 }
 
-func (e *Endpoint) makeHealthCheckHandler() gin.HandlerFunc {
+func (e *Endpoint) makeBasicHealthCheckEndpoint() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Status(http.StatusOK)
 	}
